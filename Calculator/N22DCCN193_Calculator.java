@@ -7,7 +7,7 @@ public class N22DCCN193_Calculator {
 	public static void main(String []args){
 		Calculator mycalc = new Calculator();
 		// try{
-		// 	String expression = "( ( 1 + 2 ) * 4 ) / 3";
+		// 	String expression = "  (   ( 10 + 5 * 2 )  -  ( 3 + 4 / 7 *  ( 1 - 2 )  + 2 * 3 )  * 2 )  * 2";
 		// 	System.out.println("\'" + Expression.convertInfixToPostfix(expression) + "\'");
 		// 	String []s = (" 1234 567   ").split(" ");//Expression.convertInfixToPostfix(expression).split("\\s+");
 		// 	for(String i : s)
@@ -20,33 +20,31 @@ public class N22DCCN193_Calculator {
 		// catch (ArithmeticException e){
 		// 	System.out.println("Error: " + e.getClass().getName()+ " " + e.getMessage());
 		// }
-
-
 	}
 }
 
 /*
- * 
- * UI:
- * 
- * <expression>
- * 				<answer>
- * 
- * 7 8 9 DEL AC
- * 4 5 6  +   -
- * 1 2 3  *   /
- * 0 . =  (   )
+			<expression>
+					<Answer>
+
+			7 8 9 DEL AC
+			4 5 6  +   -
+			1 2 3  *   /
+			0 . =  (   )
  */
 
 class Calculator extends JFrame{
 	private String expression;	// Luu bieu thuc can tin
 	private JPanel buttonPandel;
+	private JPanel screenPanel; //hien thi bieu thuc, ket qua tinh toan
+
+
 
 	public Calculator(){
 		expression = "";
 		initWindow();
 		initButtonPanel();
-		
+		initScreenPanel();	
 	}
 
 	private void initWindow(){
@@ -58,8 +56,10 @@ class Calculator extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
-
+		
 	}
+
+	
 
 	/*
 	 * 7 8 9 DEL AC
@@ -82,7 +82,7 @@ class Calculator extends JFrame{
 				try{
 					System.out.println("CALCULATE");
 					double ans = Expression.calculate(expression);
-	
+					printAnswer(ans);
 					//Print
 					System.out.println("ANS :" + ans);
 				}
@@ -100,6 +100,7 @@ class Calculator extends JFrame{
 				else
 					expression = expression.substring(0, expression.length() - 1);
 				System.out.println("Expression: " + expression);
+				printExpression();
 			}
 		});
 
@@ -107,6 +108,7 @@ class Calculator extends JFrame{
 		acButton.addActionListener(event->{
 			expression = "";
 			System.out.println("Expression: " + expression);
+			printExpression();
 		});
 
 		buttonPandel.add(new JButton(new NumberButtonAction("7")), 0);
@@ -133,7 +135,10 @@ class Calculator extends JFrame{
 		buttonPandel.add(new JButton(new NumberButtonAction(" ( ")), 18);
 		buttonPandel.add(new JButton(new NumberButtonAction(" ) ")), 19);
 		
+		for(int i = 0; i < 20; i++)
+			buttonPandel.getComponent(i).setBackground(new Color(128, 202, 255));
 		this.add(buttonPandel, BorderLayout.SOUTH);
+
 	}
 	
 	/*
@@ -142,12 +147,30 @@ class Calculator extends JFrame{
 	private class NumberButtonAction extends AbstractAction{
 		public NumberButtonAction(String name){
 			putValue(Action.NAME, name);
+			
 		}
 
 		public void actionPerformed(ActionEvent event){
 			expression += this.getValue(Action.NAME);
 			System.out.println("Expression: " + expression);
+			printExpression();
 		}
+	}
+
+	private void initScreenPanel(){
+		screenPanel = new JPanel();
+		
+		this.add(screenPanel, BorderLayout.CENTER);
+
+	}
+
+
+	private void printExpression(){
+
+	}
+
+	private void printAnswer(double ans){
+
 	}
 }
 
@@ -195,7 +218,7 @@ class Expression {
 		
 		String postfix = " ";
 		Stack<String> stack = new Stack<>();
-		String []s = infixExpression.split("\\s+");
+		String []s = infixExpression.trim().split("\\s+");
 		for(String i : s){
 			switch(i){
 				case LEFT_BRACKET:
@@ -253,7 +276,7 @@ class Expression {
 		int countOperand = 0;	//Dem so toan hang
 		int countLeftBracket = 0;
 
-		String []s = expression.split("\\s+");
+		String []s = expression.trim().split("\\s+");
 		for(String i : s){
 			if(Operator.isOperator(i)){
 				countOperator ++;
