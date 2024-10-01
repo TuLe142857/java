@@ -1,3 +1,24 @@
+/*
+ * @author N22DCCN193 Le Ngoc Tu 
+ * Chuong trinh Calculator co chuc nang:
+ * 		- Nhap bieu thuc(tu button tren man hinh hoac dung ban phim)
+ * 		- Tinh gia tri bieu thuc theo do uu tien cac toan tu)
+ * 
+ * Doi voi bieu thuc nhap vao chuong trinh nhan "-" la dau tru, khong 
+ * nhan "-" la dau am VD: "3 + -2" duoc xem la bieu thuc khong hop le 
+ * 
+ * Bieu thuc nhap vao luon duoc tu dong chen ky tu " " de phan biet cac 
+ * gia tri va cac toan tu 
+ * 
+ * Thuat toan:
+ * 		- Nhan bieu thuc dang trung to "( a + b ) * c"
+ * 		- Kiem tra bieu thuc co hop le hay khong
+ * 		- Chuyen bieu thuc sang dang hau to "a b + c *" va tinh gia tri
+ * 		- Hai ngoai le phat sinh:
+ * 				- Bieu thuc khong hop le throw IllegalArgumentException (Expression.convertInfixToPostfix)
+ * 				- Chia mot so cho 0 throw , ArithmeticException (Expression.Operator.calculate)
+ */
+
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -6,38 +27,17 @@ import javax.swing.*;
 public class N22DCCN193_Calculator {
 	public static void main(String []args){
 		Calculator mycalc = new Calculator();
-		// try{
-		// 	String expression = "  (   ( 10 + 5 * 2 )  -  ( 3 + 4 / 7 *  ( 1 - 2 )  + 2 * 3 )  * 2 )  * 2";
-		// 	System.out.println("\'" + Expression.convertInfixToPostfix(expression) + "\'");
-		// 	String []s = (" 1234 567   ").split(" ");//Expression.convertInfixToPostfix(expression).split("\\s+");
-		// 	for(String i : s)
-		// 		System.out.println("\'" + i + "\'");
-		// 	System.out.println(Expression.calculate(expression));
-		// }
-		// catch (IllegalArgumentException e){
-		// 	System.out.println("Error: " + e.getClass().getName() + " " + e.getMessage());
-		// }
-		// catch (ArithmeticException e){
-		// 	System.out.println("Error: " + e.getClass().getName()+ " " + e.getMessage());
-		// }
+		mycalc.setVisible(true);
 	}
 }
 
-/*
-			<expression>
-					<Answer>
-
-			7 8 9 DEL AC
-			4 5 6  +   -
-			1 2 3  *   /
-			0 . =  (   )
- */
-
 class Calculator extends JFrame{
-	private String expression;	// Luu bieu thuc can tin
-	private JPanel buttonPandel;
-	private JPanel screenPanel; //hien thi bieu thuc, ket qua tinh toan
+	private JPanel buttonPanel;	// phim bam
 
+	private String expression;		// Luu bieu thuc can tinh
+	private JPanel screenPanel; 	// hien thi bieu thuc, ket qua tinh toan
+	private JLabel outAns;
+	private JLabel outExpression;
 
 
 	public Calculator(){
@@ -45,49 +45,91 @@ class Calculator extends JFrame{
 		initWindow();
 		initButtonPanel();
 		initScreenPanel();	
+
+		this.setLayout(new GridLayout(2, 1));
+		this.add(screenPanel);
+		this.add(buttonPanel);
+
+		// add keyListener
+		setFocusable(true);
+		addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				String key = String.valueOf(e.getKeyChar());
+				switch (e.getKeyChar()){
+					case '0': case '1' : case '2': case '3': case '4': 
+					case '5': case '6' : case '7': case '8': case '9': 
+					case '.':
+						expression +=  key;
+						outExpression.setText(expression);
+						outAns.setText("");
+						break;
+
+					case '+': case '-' : case '*': case '/': 
+					case '(': case ')' : 
+						expression += " " + key + " ";
+						outExpression.setText(expression);
+						break;
+
+					case '\n':
+						if(expression.compareTo("") != 0){
+							try{
+								outAns.setText(String.valueOf(Expression.calculate(expression)));
+							}
+							catch(Exception except ){
+								// co 2 TH IllegalArgumentException, ArithmeticException
+								// chi in  thong bao nen catch Exception
+								outAns.setText(except.getMessage());
+							}
+						}
+						break;
+
+					// Blackspace asscii code = 8
+					// Blackspace thay cho DEL, khong co phim tuong ung voi AC(all clear)
+					case (char)8:
+						if(expression.length() != 0){
+							if(expression.substring(expression.length() - 1, expression.length()).compareTo(" ") == 0)
+								expression = expression.substring(0, expression.length() - 3);
+							else
+								expression = expression.substring(0, expression.length() - 1);
+							outExpression.setText(expression);
+							outAns.setText("");	
+						}
+						break;
+				}
+			}
+		});
+		
 	}
 
 	private void initWindow(){
 		Toolkit kit = Toolkit.getDefaultToolkit();
     	Dimension screenSize = kit.getScreenSize();
-    	setSize(screenSize.width/3, screenSize.height*4/5);
+    	setSize(screenSize.width/3, screenSize.height/3);
     	setLocationByPlatform(true);
     	setTitle("My Calculator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
-
-		
 	}
 
 	
-
-	/*
-	 * 7 8 9 DEL AC
- 	 * 4 5 6  +   -
- 	 * 1 2 3  *   /
- 	 * 0 . =  (   )
-	 */
 	private void initButtonPanel(){
-		buttonPandel = new JPanel();
-		
-		buttonPandel.setLayout(new GridLayout(4, 5));
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(4, 5));
+
+		//DEL: delete; AC: all clear
 		JButton calcButton = new JButton("=");
 		JButton delButton = new JButton("DEL");
 		JButton acButton = new JButton("AC");
 
 		// Tinh gia tri
 		calcButton.addActionListener(event ->{
-
 			if(expression.compareTo("") != 0){
 				try{
-					System.out.println("CALCULATE");
-					double ans = Expression.calculate(expression);
-					printAnswer(ans);
-					//Print
-					System.out.println("ANS :" + ans);
+					outAns.setText(String.valueOf(Expression.calculate(expression)));
 				}
 				catch(Exception e ){
-					System.out.println("Loi: " + e.getMessage());
+					// co 2 TH IllegalArgumentException, ArithmeticException
+					// chi in  thong bao nen catch Exception
+					outAns.setText(e.getMessage());
 				}
 			}
 		}); 
@@ -99,46 +141,80 @@ class Calculator extends JFrame{
 					expression = expression.substring(0, expression.length() - 3);
 				else
 					expression = expression.substring(0, expression.length() - 1);
-				System.out.println("Expression: " + expression);
-				printExpression();
+				outExpression.setText(expression);
+				outAns.setText("");
+				
 			}
 		});
 
 		//xoa toan bo bieu thuc
 		acButton.addActionListener(event->{
 			expression = "";
-			System.out.println("Expression: " + expression);
-			printExpression();
+			outExpression.setText(expression);
+			outAns.setText("");
 		});
 
-		buttonPandel.add(new JButton(new NumberButtonAction("7")), 0);
-		buttonPandel.add(new JButton(new NumberButtonAction("8")), 1);
-		buttonPandel.add(new JButton(new NumberButtonAction("9")), 2);
-		buttonPandel.add(delButton, 3);
-		buttonPandel.add(acButton, 4);
+		/*	
+		 * Cac phim bo tri tren layout grid(4x5)
+		 * 7 8 9 DEL AC			0  1  2  3  4
+		 * 4 5 6  +   -			5  6  7  8  9
+		 * 1 2 3  *   /	   =>	10 11 12 13 14
+		 * 0 . =  (   )			15 16 17 18 19 
+		 * 
+		 * Cac phim + - * / ( ) them khoang trang truoc va sau
+		 * de phan cach voi nhau va voi cac gia tri so
+		 */
+		
 
-		buttonPandel.add(new JButton(new NumberButtonAction("4")), 5);
-		buttonPandel.add(new JButton(new NumberButtonAction("5")), 6);
-		buttonPandel.add(new JButton(new NumberButtonAction("6")), 7);
-		buttonPandel.add(new JButton(new NumberButtonAction(" + ")), 8);
-		buttonPandel.add(new JButton(new NumberButtonAction(" - ")), 9);
+		buttonPanel.add(new JButton(new NumberButtonAction("7")), 0);
+		buttonPanel.add(new JButton(new NumberButtonAction("8")), 1);
+		buttonPanel.add(new JButton(new NumberButtonAction("9")), 2);
+		buttonPanel.add(delButton, 3);
+		buttonPanel.add(acButton, 4);
 
-		buttonPandel.add(new JButton(new NumberButtonAction("1")), 10);
-		buttonPandel.add(new JButton(new NumberButtonAction("2")), 11);
-		buttonPandel.add(new JButton(new NumberButtonAction("3")), 12);
-		buttonPandel.add(new JButton(new NumberButtonAction(" * ")), 13);
-		buttonPandel.add(new JButton(new NumberButtonAction(" / ")), 14);
+		buttonPanel.add(new JButton(new NumberButtonAction("4")), 5);
+		buttonPanel.add(new JButton(new NumberButtonAction("5")), 6);
+		buttonPanel.add(new JButton(new NumberButtonAction("6")), 7);
+		buttonPanel.add(new JButton(new NumberButtonAction(" + ")), 8);
+		buttonPanel.add(new JButton(new NumberButtonAction(" - ")), 9);
 
-		buttonPandel.add(new JButton(new NumberButtonAction("0")), 15);
-		buttonPandel.add(new JButton(new NumberButtonAction(".")), 16);
-		buttonPandel.add(calcButton, 17);
-		buttonPandel.add(new JButton(new NumberButtonAction(" ( ")), 18);
-		buttonPandel.add(new JButton(new NumberButtonAction(" ) ")), 19);
+		buttonPanel.add(new JButton(new NumberButtonAction("1")), 10);
+		buttonPanel.add(new JButton(new NumberButtonAction("2")), 11);
+		buttonPanel.add(new JButton(new NumberButtonAction("3")), 12);
+		buttonPanel.add(new JButton(new NumberButtonAction(" * ")), 13);
+		buttonPanel.add(new JButton(new NumberButtonAction(" / ")), 14);
+
+		buttonPanel.add(new JButton(new NumberButtonAction("0")), 15);
+		buttonPanel.add(new JButton(new NumberButtonAction(".")), 16);
+		buttonPanel.add(calcButton, 17);
+		buttonPanel.add(new JButton(new NumberButtonAction(" ( ")), 18);
+		buttonPanel.add(new JButton(new NumberButtonAction(" ) ")), 19);
 		
 		for(int i = 0; i < 20; i++)
-			buttonPandel.getComponent(i).setBackground(new Color(128, 202, 255));
-		this.add(buttonPandel, BorderLayout.SOUTH);
+			buttonPanel.getComponent(i).setBackground(new Color(207, 245, 255));
+		buttonPanel.getComponent(3).setBackground(Color.BLUE);	// DEL
+		buttonPanel.getComponent(3).setForeground(Color.WHITE);	// DEL
+		
+		buttonPanel.getComponent(4).setBackground(Color.BLUE);	// AC
+		buttonPanel.getComponent(4).setForeground(Color.WHITE);	// AC
+	}
 
+	private void initScreenPanel(){
+		screenPanel = new JPanel();
+		screenPanel.setLayout(new GridLayout(2, 1));
+		outAns = new JLabel();
+		outAns.setHorizontalAlignment(JLabel.RIGHT);
+		outAns.setVerticalAlignment(JLabel.CENTER);
+		outAns.setFont(new Font("Arial", Font.PLAIN, 20));
+
+		outExpression = new JLabel();
+		outExpression.setHorizontalAlignment(JLabel.RIGHT);
+		outExpression.setVerticalAlignment(JLabel.CENTER);
+		outExpression.setFont(new Font("Arial", Font.PLAIN, 20));
+		
+		
+		screenPanel.add(outExpression);
+		screenPanel.add(outAns);
 	}
 	
 	/*
@@ -152,25 +228,8 @@ class Calculator extends JFrame{
 
 		public void actionPerformed(ActionEvent event){
 			expression += this.getValue(Action.NAME);
-			System.out.println("Expression: " + expression);
-			printExpression();
+			outExpression.setText(expression);
 		}
-	}
-
-	private void initScreenPanel(){
-		screenPanel = new JPanel();
-		
-		this.add(screenPanel, BorderLayout.CENTER);
-
-	}
-
-
-	private void printExpression(){
-
-	}
-
-	private void printAnswer(double ans){
-
 	}
 }
 
