@@ -14,46 +14,50 @@ public class HieuSoNguyenLon_1 {
 		for(int i = 0; i < k; i++){
 			s1 = in.nextLine();
 			s2 = in.nextLine();
+			// if(s1.length() == 0)
+			// 	s1 = new String("0");
+			// if(s2.length() == 0)
+			// 	s2 = new String("0");
+			if(s1.length() == 0 || s2.length() == 0){
+				if(s1.length() == 0)
+					System.out.println(s2);
+				else	
+					System.out.println(s1);
+				continue;
+			}
 			ans = Subtract(s1, s2);
 			System.out.println(ans);
 		}
 	}
 
 	public static String Subtract(String a, String b){
-		int compare = compareString(a, b);
-		if(compare == 0) return "0";
-		if(compare == -1) return Subtract(b, a);
-		String ans = "";
-
-		//a > b
-		int l = a.length();
-		while(b.length() < l){
+		while(a.length() < b.length()){
+			a = "0" + a;
+		}
+		while(b.length() < a.length()){
 			b = "0" + b;
 		}
 
-		
-		int r = 0;
-		for(int i = l-1; i>=0; i--){
-			int digitA = charToInt(a.charAt(i));
-			int digitB = charToInt(b.charAt(i));
-			int x = digitA - digitB - r;
+		if(a.compareTo(b) < 0){
+			return Subtract(b, a);
+		}
+
+		//now: a.length == b.length && a >= b
+		String ans = "";
+		int l = a.length();
+		int r = 0, x;
+		for(int i = l-1; i >= 0; i--){
+			x = charToInt(a.charAt(i)) - charToInt(b.charAt(i)) - r;
 			r = 0;
-			if(x < 0) {
+			if(x < 0){
 				x += 10;
-				r = 1;
+				r ++;
 			}
+
 			ans = String.valueOf(x) + ans;
 		}
+
 		return ans;
-	}
-
-	public static int compareString(String a, String b){
-		if(a.length() < b.length())
-			return -1;
-		if(a.length() > b.length())
-			return 1;
-
-		return a.compareTo(b);
 	}
 
 	public static int charToInt(char c){
