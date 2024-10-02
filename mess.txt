@@ -9,3 +9,6 @@ tule@tule-VirtualBox:/home$ su -l N22DCCN193
 Password: 
 $ ^C
 $ 
+
+tule:x:1000:1000:tule:/home/tule:/bin/bash
+N22DCCN193:x:1001:1001::/home/N22DCCN193:/bin/sh
