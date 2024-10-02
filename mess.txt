@@ -4,3 +4,8 @@ tule@tule-VirtualBox:~$ su N22DCCN193
 Password: 
 $ groups
 N22DCCN193 adm cdrom sudo dip plugdev users lpadmin
+
+tule@tule-VirtualBox:/home$ su -l N22DCCN193
+Password: 
+$ ^C
+$ 
