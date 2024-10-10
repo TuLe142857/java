@@ -1,0 +1,14 @@
+tule@tule-VirtualBox:~$ groups
+tule adm cdrom sudo dip plugdev users lpadmin
+tule@tule-VirtualBox:~$ su N22DCCN193
+Password: 
+$ groups
+N22DCCN193 adm cdrom sudo dip plugdev users lpadmin
+
+tule@tule-VirtualBox:/home$ su -l N22DCCN193
+Password: 
+$ ^C
+$ 
+
+tule:x:1000:1000:tule:/home/tule:/bin/bash
+N22DCCN193:x:1001:1001::/home/N22DCCN193:/bin/sh
